@@ -1,0 +1,5 @@
+[custom.all.bt-bag]
+type = "local"
+path = "bt-bag"
+ipkg = "bt-bag.ipkg"
+test = "test/bt-bag-test.ipkg"
