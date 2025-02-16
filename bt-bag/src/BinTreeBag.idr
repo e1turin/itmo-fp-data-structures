@@ -33,9 +33,9 @@ remove x (Node tl et@(value, count) tr) =
     GT => Node tl et (remove x tr)
   where 
     shiftLess : BinTreeBag t -> BinTreeBag t -> BinTreeBag t
-    shiftLess less (Node tl et@(vr, cr) tr) = Node (shiftLess less tl) et tr
-    shiftLess node Empty = node
     shiftLess Empty node = node
+    shiftLess node Empty = node
+    shiftLess less (Node tl et@(vr, cr) tr) = Node (shiftLess less tl) et tr
 
 export
 Eq t => Eq (BinTreeBag t) where
