@@ -49,6 +49,23 @@ remove x (Node b tl tr) =
     shiftLess less (Node b tl tr) = Node b (shiftLess less tl) tr
 
 export
+Functor Bag where
+  map f b = ?k
+
+export
+Functor BinTree where
+  map f Empty = Empty
+  map f (Node value left right) = Node (f value) (map f left) (map f right)
+
+export
+Foldable BinTree where
+  foldr f acc Empty = acc
+  foldr f acc (Node value left right) =
+    let leftFold = foldr f acc left
+        rightFold = foldr f leftFold right
+      in f value rightFold
+
+export
 Eq t => Eq (Bag t) where
   (MkBag v1 c1) == (MkBag v2 c2) = v1 == v2 && c1 == c2
 
@@ -63,7 +80,7 @@ Ord t => Semigroup (BinTree (Bag t)) where
   Empty <+> Empty = Empty
   Empty <+> node = node
   node <+> Empty = node
-  t1@(Node b1 tl1 tr1) <+> t2@(Node b2 tl2 tr2) = 
+  t1@(Node b1 tl1 tr1) <+> t2@(Node b2 tl2 tr2) =
     case compare b1.value b2.value of
       LT => Node b2 (t1 <+> tl2) tr2
       EQ => Node ({ count $= (+ b2.count) } b1) (tl1 <+> tl2) (tr1 <+> tr2)
@@ -72,10 +89,4 @@ Ord t => Semigroup (BinTree (Bag t)) where
 export
 Ord t => Monoid (BinTree (Bag t)) where
   neutral = Empty
-
--- TODO: proof @f is isomophic
-Functor BinTree where
-  map f Empty = Empty
-  map f (Node value left right) = Node (f value) (map f left) (map f right)
-
 
