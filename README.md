@@ -35,8 +35,10 @@
 Пример наивной реализации Tree
 - можно видеть в книге Type Driven Development в листинге "Listing 4.7 Defining binary trees (Tree.idr)"
 
-Пример реализации BST с различными доказательствами: 
-- https://github.com/polendri/idris-collections/blob/master/src/Collections/BSTree/Set/Core.idr
+Примеры реализаций структур на Idris:
+- Idris2 Tree с верификацией: https://github.com/polendri/idris-collections/blob/master/src/Collections/BSTree/Set/Core.idr
+- https://github.com/jfdm/idris-containers
+- https://github.com/buzden/deptycheck/blob/master/examples/sorted-tree-naive/src/Data/SortedBinTree.idr
 
 Пришел к выводу, что ограничения на типы в структуре данных лучше оставлять в
 методах для работы с этой структурой данных. Подробнее:
