@@ -15,7 +15,7 @@ export
 Leaf : t -> BinTree t
 Leaf value = Node value Empty Empty
 
-export
+public export
 record Bag t where
   constructor MkBag
   value : t
@@ -23,15 +23,74 @@ record Bag t where
 
 %name Bag b
 
+--
+-- Interfaces for data structures
+--
+
+export
+Functor Bag where
+  map f b = { value $= f } b
+
+export
+Functor BinTree where
+  map f Empty = Empty
+  map f (Node value left right) = Node (f value) (map f left) (map f right)
+
+export
+Foldable BinTree where
+  foldr f acc Empty = acc
+  foldr f acc (Node value left right) =
+    let leftFold = foldr f acc left
+        midFold = f value leftFold
+        rightFold = foldr f midFold right
+      in rightFold
+
+  -- foldl by default impl
+
+-- Ordering
+
+export
+Eq t => Eq (Bag t) where
+  (MkBag v1 c1) == (MkBag v2 c2) = v1 == v2 && c1 == c2
+
+export
+Eq (Bag t) => Eq (BinTree (Bag t)) where
+  Empty == Empty = True
+  (Node b1 tl1 tr1) == (Node b2 tl2 tr2) = b1 == b2 && tl1 == tl2 && tr1 == tr2
+  _ == _ = False
+
+export
+(Ord t) => Ord (Bag t) where
+  -- how we can order pairs properly?
+  b1 < b2 = case compare b1.value b2.value of
+              LT => True
+              EQ => b1.count < b2.count
+              GT => False
+  -- b1 < b2 = b1.value < b2.value
+  -- b1 <= b2 = b1.value <= b2.value
+  -- b1 > b2 = b1.value > b2.value
+  -- b1 >= b2 = b1.value >= b2.value
+
+
+||| Add value in tree as in set.
 export
 insert : Ord a => a -> BinTree a -> BinTree a
 insert x Empty = Leaf x
-insert x node@(Node value left right) =
+insert x (Node value left right) =
   case compare x value of
     LT => Node value (insert x left) right
-    EQ => node
+    EQ => Node x left right
     GT => Node value left (insert x right)
 
+export
+Ord t => Semigroup (BinTree t) where
+  Empty <+> Empty = Empty
+  Empty <+> node = node
+  node <+> Empty = node
+  t1 <+> t2 = foldr insert t1 t2
+
+
+||| Puts value in bag as in multiset.
 export
 put : Ord t => t -> BinTree (Bag t) -> BinTree (Bag t)
 put x Empty = Leaf (MkBag x 1)
@@ -41,6 +100,43 @@ put x (Node b tl tr) =
     EQ => Node ({ count $= (+ 1) } b) tl tr
     GT => Node b tl (put x tr)
 
+||| Implementation of Semigroup for TreeBag (Multiset).
+||| Operation on it acts not like on common sets.
+export
+[BinTreeBagSemi]
+Ord t => Semigroup (BinTree (Bag t)) where
+  Empty <+> Empty = Empty
+  Empty <+> node = node
+  node <+> Empty = node
+  t1 <+> t2 = merge t1 t2 where
+    merge : BinTree (Bag t) -> BinTree (Bag t) -> BinTree (Bag t)
+    merge = foldr (\b, acc => put b.value acc)
+
+export
+Semigroup (BinTree t) => Monoid (BinTree t) where
+  neutral = Empty
+
+--
+-- Show implementation
+--
+
+export
+Show t => Show (Bag t) where
+  show (MkBag value count) = "(\{show value}: \{show count})"
+
+export
+Show t => Show (BinTree t) where
+  show Empty = ""
+  show (Node value Empty Empty) = "[\{show value}]"
+  show (Node value left Empty) = "[\{show left} \{show value}]"
+  show (Node value Empty right) = "[\{show value} \{show right}]"
+  show (Node value left right) = "[\{show left} \{show value} \{show right}]"
+
+--
+-- Other methods
+--
+
+||| Shifts left tree to left branch of right tree
 shiftLess : BinTree b -> BinTree b -> BinTree b
 shiftLess Empty node = node
 shiftLess node Empty = node
@@ -56,80 +152,53 @@ remove x (Node value left right) =
     GT => Node value left (remove x right)
 
 export
-pick : Ord t => t -> BinTree (Bag t) -> BinTree (Bag t)
-pick x Empty = Empty
-pick x (Node b tl tr) =
+take : Ord t => t -> BinTree (Bag t) -> BinTree (Bag t)
+take x Empty = Empty
+take x (Node b tl tr) =
   case compare x b.value of
-    LT => Node b (pick x tl) tr
+    LT => Node b (take x tl) tr
     EQ => case b.count of
-              0 => shiftLess tl tr
-              (S k) => Node ({ count := k } b) tl tr
-    GT => Node b tl (pick x tr)
+            0 => shiftLess tl tr
+            (S k) => Node ({ count := k } b) tl tr
+    GT => Node b tl (take x tr)
 
 export
-Functor Bag where
-  map f b@(MkBag v c) = { value $= f } b
-
-export
-Functor BinTree where
-  map f Empty = Empty
-  map f (Node value left right) = Node (f value) (map f left) (map f right)
-
-export
-Foldable BinTree where
-  foldr f acc Empty = acc
-  foldr f acc (Node value left right) =
-    let leftFold = foldr f acc left
-        rightFold = foldr f leftFold right
-      in f value rightFold
-
-  foldl f acc Empty = acc
-  foldl f acc (Node value left right) =
-    case (left, right) of
-      (Empty, Empty) => ?strip_1
-      (Empty, (Node x l r)) => ?strip_2
-      ((Node x l r), Empty) => ?strip_3
-      ((Node x l1 r1), (Node y l2 r2)) => ?strip_4
-
-export
-Eq t => Eq (Bag t) where
-  (MkBag v1 c1) == (MkBag v2 c2) = v1 == v2 && c1 == c2
-
-export
-Eq (Bag t) => Eq (BinTree (Bag t)) where
-  Empty == Empty = True
-  (Node b1 tl1 tr1) == (Node b2 tl2 tr2) = b1 == b2 && tl1 == tl2 && tr1 == tr2
-  _ == _ = False
-
-export
-(Eq (Bag t), Ord t) => Ord (Bag t) where
-  b1 < b2 = case compare b1.value b2.value of
-              LT => True
-              EQ => b1.count < b2.count
-              GT => False
-
-export
-Ord t => Semigroup (BinTree (Bag t)) where
-  Empty <+> Empty = Empty
-  Empty <+> node = node
-  node <+> Empty = node
-  t1@(Node b1 tl1 tr1) <+> t2@(Node b2 tl2 tr2) =
-    case compare b1.value b2.value of
-      LT => Node b2 (t1 <+> tl2) tr2
-      EQ => Node ({ count $= (+ b2.count) } b1) (tl1 <+> tl2) (tr1 <+> tr2)
-      GT => Node b1 (tl1 <+> t2) tr1
-
-export
-Ord t => Monoid (BinTree (Bag t)) where
-  neutral = Empty
-
 filter : Ord t => BinTree t -> (f : t -> Bool) -> BinTree t
 filter Empty f = Empty
-filter node f = foldr go Empty node
-  where
-    go : t -> BinTree t -> BinTree t
-    go et acc = case f et of
-                     False => acc
-                     True => insert et acc
+filter node f = foldr pick Empty node where
+  pick : t -> BinTree t -> BinTree t
+  pick et acc = case f et of
+                False => acc
+                True => insert et acc
+
+export
+find : Ord t => t -> BinTree t -> BinTree t
+find v Empty = Empty
+find v node@(Node value left right) =
+  case compare v value of
+    LT => find v left
+    EQ => node
+    GT => find v right
+
+export
+count : Ord t => t -> BinTree (Bag t) -> Nat
+count v Empty = 0
+count v (Node (MkBag value k) left right) =
+  case compare v value of
+    LT => count v left
+    EQ => k
+    GT => count v right
+
+export
+size : BinTree t -> Nat
+size tree = foldr (\_, acc => 1 + acc) 0 tree
+
+export
+binTreeBagFromList : Ord t => List t -> BinTree (Bag t)
+binTreeBagFromList xs = foldl (flip put) Empty xs
+
+export
+binTreeToList : Ord t => BinTree t -> List t
+binTreeToList tree = foldl (flip (::)) [] tree
 
 
