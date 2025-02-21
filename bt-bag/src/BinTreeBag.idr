@@ -47,7 +47,9 @@ Foldable BinTree where
 
   -- foldl by default impl
 
+--
 -- Ordering
+--
 
 export
 Eq t => Eq (Bag t) where
@@ -62,15 +64,19 @@ Eq (Bag t) => Eq (BinTree (Bag t)) where
 export
 (Ord t) => Ord (Bag t) where
   -- how we can order pairs properly?
-  b1 < b2 = case compare b1.value b2.value of
-              LT => True
-              EQ => b1.count < b2.count
-              GT => False
   -- b1 < b2 = b1.value < b2.value
   -- b1 <= b2 = b1.value <= b2.value
   -- b1 > b2 = b1.value > b2.value
   -- b1 >= b2 = b1.value >= b2.value
+  compare b1 b2 =
+    case compare b1.value b2.value of
+      LT => LT
+      EQ => compare b1.count b2.count
+      GT => GT
 
+--
+-- Algebraic structures
+--
 
 ||| Add value in tree as in set.
 export
@@ -136,7 +142,7 @@ Show t => Show (BinTree t) where
 -- Other methods
 --
 
-||| Shifts left tree to left branch of right tree
+||| Utility function. Shifts left tree to right tree's left branch
 shiftLess : BinTree b -> BinTree b -> BinTree b
 shiftLess Empty node = node
 shiftLess node Empty = node
@@ -152,15 +158,15 @@ remove x (Node value left right) =
     GT => Node value left (remove x right)
 
 export
-take : Ord t => t -> BinTree (Bag t) -> BinTree (Bag t)
-take x Empty = Empty
-take x (Node b tl tr) =
+drop : Ord t => t -> BinTree (Bag t) -> BinTree (Bag t)
+drop x Empty = Empty
+drop x (Node b tl tr) =
   case compare x b.value of
-    LT => Node b (take x tl) tr
+    LT => Node b (drop x tl) tr
     EQ => case b.count of
             0 => shiftLess tl tr
             (S k) => Node ({ count := k } b) tl tr
-    GT => Node b tl (take x tr)
+    GT => Node b tl (drop x tr)
 
 export
 filter : Ord t => BinTree t -> (f : t -> Bool) -> BinTree t
@@ -200,5 +206,4 @@ binTreeBagFromList xs = foldl (flip put) Empty xs
 export
 binTreeToList : Ord t => BinTree t -> List t
 binTreeToList tree = foldl (flip (::)) [] tree
-
 
