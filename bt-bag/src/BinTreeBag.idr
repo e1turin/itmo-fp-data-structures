@@ -55,6 +55,7 @@ export
 Eq t => Eq (Bag t) where
   (MkBag v1 c1) == (MkBag v2 c2) = v1 == v2 && c1 == c2
 
+-- TODO: Fix equality as sets
 export
 Eq (Bag t) => Eq (BinTree (Bag t)) where
   Empty == Empty = True
