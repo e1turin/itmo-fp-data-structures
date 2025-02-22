@@ -1,5 +1,7 @@
 module BinTreeBag
 
+import Data.Nat
+
 %default total
 
 public export
@@ -14,6 +16,10 @@ data BinTree : (t : Type) -> Type where
 export
 Leaf : t -> BinTree t
 Leaf value = Node value Empty Empty
+
+-- TODO: add constraint to Bag.count
+-- Positive : {v: Nat} -> NonZero v => Type
+-- Positive = Nat
 
 public export
 record Bag t where
@@ -40,12 +46,16 @@ export
 Foldable BinTree where
   foldr f acc Empty = acc
   foldr f acc (Node value left right) =
-    let leftFold = foldr f acc left
-        midFold = f value leftFold
-        rightFold = foldr f midFold right
-      in rightFold
+    let rightFold = foldr f acc right
+        midFold = f value rightFold
+        leftFold = foldr f midFold left
+      in leftFold
 
   -- foldl by default impl
+
+export
+toList : Ord t => BinTree t -> List t
+toList = foldr (::) []
 
 --
 -- Ordering
@@ -54,13 +64,6 @@ Foldable BinTree where
 export
 Eq t => Eq (Bag t) where
   (MkBag v1 c1) == (MkBag v2 c2) = v1 == v2 && c1 == c2
-
--- TODO: Fix equality as sets
-export
-Eq (Bag t) => Eq (BinTree (Bag t)) where
-  Empty == Empty = True
-  (Node b1 tl1 tr1) == (Node b2 tl2 tr2) = b1 == b2 && tl1 == tl2 && tr1 == tr2
-  _ == _ = False
 
 export
 (Ord t) => Ord (Bag t) where
@@ -74,6 +77,13 @@ export
       LT => LT
       EQ => compare b1.count b2.count
       GT => GT
+
+export
+(Ord t, Eq (Bag t)) => Eq (BinTree (Bag t)) where
+  Empty == Empty = True
+  Empty == (Node _ _ _) = False
+  (Node _ _ _) == Empty = False
+  t1 == t2 = BinTreeBag.toList t1 == BinTreeBag.toList t2
 
 --
 -- Algebraic structures
@@ -96,16 +106,21 @@ Ord t => Semigroup (BinTree t) where
   node <+> Empty = node
   t1 <+> t2 = foldr insert t1 t2
 
+||| Adds all values from given bag to multiset.
+export
+move : Ord t => Bag t -> BinTree (Bag t) -> BinTree (Bag t)
+move (MkBag _ 0) tree = tree
+move bag Empty = Leaf bag
+move x tree@(Node b left right) =
+  case compare x.value b.value of
+    LT => Node b (move x left) right
+    EQ => Node ({ count $= (+ x.count) } b) left right
+    GT => Node b left (move x right)
 
-||| Puts value in bag as in multiset.
+||| Add value to multiset.
 export
 put : Ord t => t -> BinTree (Bag t) -> BinTree (Bag t)
-put x Empty = Leaf (MkBag x 1)
-put x (Node b tl tr) =
-  case compare x b.value of
-    LT => Node b (put x tl) tr
-    EQ => Node ({ count $= (+ 1) } b) tl tr
-    GT => Node b tl (put x tr)
+put x tree = move (MkBag x 1) tree
 
 ||| Implementation of Semigroup for TreeBag (Multiset).
 ||| Operation on it acts not like on common sets.
@@ -115,9 +130,7 @@ Ord t => Semigroup (BinTree (Bag t)) where
   Empty <+> Empty = Empty
   Empty <+> node = node
   node <+> Empty = node
-  t1 <+> t2 = merge t1 t2 where
-    merge : BinTree (Bag t) -> BinTree (Bag t) -> BinTree (Bag t)
-    merge = foldr (\b, acc => put b.value acc)
+  t1 <+> t2 = foldr move t1 t2
 
 export
 Semigroup (BinTree t) => Monoid (BinTree t) where
@@ -129,7 +142,7 @@ Semigroup (BinTree t) => Monoid (BinTree t) where
 
 export
 Show t => Show (Bag t) where
-  show (MkBag value count) = "(\{show value}: \{show count})"
+  show (MkBag value count) = "{\{show value}: \{show count}}"
 
 export
 Show t => Show (BinTree t) where
@@ -203,8 +216,4 @@ size tree = foldr (\_, acc => 1 + acc) 0 tree
 export
 binTreeBagFromList : Ord t => List t -> BinTree (Bag t)
 binTreeBagFromList xs = foldl (flip put) Empty xs
-
-export
-binTreeToList : Ord t => BinTree t -> List t
-binTreeToList tree = foldl (flip (::)) [] tree
 
