@@ -13,12 +13,20 @@ treeBagInt = treeBag (linear 1 30) (int (linear 0 10))
 (++) : Ord t => (t1, t2 : BinTree (Bag t)) -> BinTree (Bag t)
 (++) = (<+>) @{BinTreeBagSemi}
 
+propEquality : Property
+propEquality = property $ do
+  tree <- forAll treeBagInt
+  let orig = BinTreeBag.toList tree
+  tree === binTreeFromList (reverse orig)
+
+
 propOpIsAssoc : Property
 propOpIsAssoc = property $ do
   t1 <- forAll treeBagInt
   t2 <- forAll treeBagInt
   t3 <- forAll treeBagInt
   t1 ++ (t2 ++ t3) === (t1 ++ t2) ++ t3
+
 
 propHasNeutral : Monoid (BinTree (Bag Int)) => Property
 propHasNeutral = property $ do
@@ -27,16 +35,21 @@ propHasNeutral = property $ do
   t ++ n === t
   n ++ t === t
 
+
 propOpIsCommut : Property
 propOpIsCommut = property $ do
   t1 <- forAll treeBagInt
   t2 <- forAll treeBagInt
   t1 ++ t2 === t2 ++ t1
 
+
 export
 propTests : List Group
 propTests =
-  [ MkGroup "Monoid properties of BinTree Bag" [
+  [ MkGroup "Properties of BinTree" [
+      ("Equality", propEquality)
+    ]
+  , MkGroup "Monoid properties of BinTree Bag" [
       ("Associativity", propOpIsAssoc)
     , ("Neutral element", propHasNeutral)
     ]

@@ -6,11 +6,13 @@ import Util
 import BinTreeBag
 
 import PropTests
-import UnitTests
+import BinTreeUnitTests
+import BagUnitTests
 
 
 main : IO ()
 main = testAll [
-    unitTests
+    binTreeUnitTests
+  , bagUnitTests
   , propTests
   ]

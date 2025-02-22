@@ -79,11 +79,18 @@ export
       GT => GT
 
 export
-(Ord t, Eq (Bag t)) => Eq (BinTree (Bag t)) where
+Ord t => Eq (BinTree t) where
   Empty == Empty = True
   Empty == (Node _ _ _) = False
   (Node _ _ _) == Empty = False
   t1 == t2 = BinTreeBag.toList t1 == BinTreeBag.toList t2
+
+-- export
+-- Ord t => Eq (BinTree (Bag t)) where
+--   Empty == Empty = True
+--   Empty == (Node _ _ _) = False
+--   (Node _ _ _) == Empty = False
+--   t1 == t2 = BinTreeBag.toList t1 == BinTreeBag.toList t2
 
 --
 -- Algebraic structures
@@ -214,6 +221,10 @@ size : BinTree t -> Nat
 size tree = foldr (\_, acc => 1 + acc) 0 tree
 
 export
+binTreeFromList : Ord t => List t -> BinTree t
+binTreeFromList = foldl (flip insert) Empty
+
+export
 binTreeBagFromList : Ord t => List t -> BinTree (Bag t)
-binTreeBagFromList xs = foldl (flip put) Empty xs
+binTreeBagFromList = foldl (flip put) Empty
 
