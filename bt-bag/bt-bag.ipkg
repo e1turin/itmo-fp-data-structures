@@ -16,7 +16,8 @@ authors = "e1turin"
 -- depends =
 
 -- modules to install
-modules = BinTreeBag
+modules = BinTree
+        , Bag
 
 -- main file (i.e. file to load at REPL)
 -- main =

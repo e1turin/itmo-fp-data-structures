@@ -3,7 +3,8 @@ module BagUnitTests
 import Hedgehog
 import Util
 
-import BinTreeBag
+import BinTree
+import Bag
 
 
 testBinTreeBagFromList : UnitTest
@@ -25,15 +26,15 @@ testFillEmpty = unitTest $ do
 
   let tree1 = put 1 tree
   tree1 === Leaf (MkBag 1 1)
-  BinTreeBag.count 1 tree1 === 1
+  Bag.count 1 tree1 === 1
 
   let tree1' = move (MkBag 1 42) tree
   tree1' === Leaf (MkBag 1 42)
-  BinTreeBag.count 1 tree1' === 42
+  Bag.count 1 tree1' === 42
 
   let tree10 = move (MkBag 1 0) tree
   tree10 === Empty
-  BinTreeBag.count 1 tree10 === 0
+  Bag.count 1 tree10 === 0
 
 
 testFillNonEmpty : UnitTest

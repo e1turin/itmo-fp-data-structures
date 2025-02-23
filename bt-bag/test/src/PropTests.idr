@@ -2,7 +2,8 @@ module PropTests
 
 import Hedgehog
 
-import BinTreeBag
+import BinTree
+import Bag
 
 treeBag : Ord a => Hedgehog.Range Nat -> Gen a -> Gen (BinTree (Bag a))
 treeBag range gen = list range gen |> map binTreeBagFromList
@@ -16,7 +17,7 @@ treeBagInt = treeBag (linear 1 30) (int (linear 0 10))
 propEquality : Property
 propEquality = property $ do
   tree <- forAll treeBagInt
-  let orig = BinTreeBag.toList tree
+  let orig = BinTree.toList tree
   tree === binTreeFromList (reverse orig)
 
 

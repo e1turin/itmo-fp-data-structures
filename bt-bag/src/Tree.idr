@@ -3,7 +3,7 @@ module Tree
 %default total
 
 
-namespace Tree
+namespace Naive
 
   ||| Binary Search Tree without constraint
   public export
@@ -15,14 +15,14 @@ namespace Tree
 
   insert : Ord t => t -> Tree t -> Tree t
   insert x Empty = Node Empty x Empty
-  insert x node@(Node t1 y t2) = 
+  insert x node@(Node t1 y t2) =
     case compare x y of
       LT => Node (insert x t1) y t2
       EQ => node
       GT => Node t1 y (insert x t2)
 
 
-namespace BSTree
+namespace Basic
 
   ||| Binary Search Tree with constraint
   public export
@@ -35,7 +35,7 @@ namespace BSTree
 
   insert : t -> BSTree t -> BSTree t
   insert x Empty = Node Empty x Empty
-  insert x node@(Node left value right) = 
+  insert x node@(Node left value right) =
     case compare x value of
       LT => Node (insert x left) value right
       EQ => node

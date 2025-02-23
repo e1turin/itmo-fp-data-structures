@@ -3,7 +3,7 @@ module BinTreeUnitTests
 import Hedgehog
 import Util
 
-import BinTreeBag
+import BinTree
 
 
 testEquality : UnitTest
@@ -28,8 +28,8 @@ testToList = unitTest $ do
   let tree' = Node 5 (Node 3 (Node 2 (Leaf 1) Empty)
                              (Leaf 4))
                      (Leaf 6)
-  let list = BinTreeBag.toList tree
-  let list' = BinTreeBag.toList tree'
+  let list = BinTree.toList tree
+  let list' = BinTree.toList tree'
   list === [1, 2, 3, 4, 5, 6]
   list === list'
 

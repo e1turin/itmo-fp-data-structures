@@ -3,8 +3,6 @@ module Main
 import Hedgehog
 import Util
 
-import BinTreeBag
-
 import PropTests
 import BinTreeUnitTests
 import BagUnitTests
