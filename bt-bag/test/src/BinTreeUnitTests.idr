@@ -146,8 +146,8 @@ testFind = unitTest $ do
 export
 binTreeUnitTests : List Group
 binTreeUnitTests =
-  [ MkGroup "Unit tests of BinTree" [
-      ("BinTree equality", testEquality)
+  [ MkGroup "Unit tests of BinTree"
+    [ ("BinTree equality", testEquality)
     , ("BinTree to list", testToList)
     , ("BinTree from list", testBinTreeFromList)
     , ("Insert to empty tree", testInsertEmpty)

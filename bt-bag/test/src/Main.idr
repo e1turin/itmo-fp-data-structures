@@ -9,8 +9,8 @@ import BagUnitTests
 
 
 main : IO ()
-main = testAll [
-    binTreeUnitTests
+main = testAll
+  [ binTreeUnitTests
   , bagUnitTests
   , propTests
   ]

@@ -70,16 +70,16 @@ propFoldOrder = property $ do
 export
 propTests : List Group
 propTests =
-  [ MkGroup "Properties of BinTree" [
-      ("Equality", propEquality)
+  [ MkGroup "Properties of BinTree"
+    [ ("Equality", propEquality)
     , ("Fold left and right order", propFoldOrder)
     ]
-  , MkGroup "Monoid properties of BinTree Bag" [
-      ("Associativity", propOpIsAssoc)
+  , MkGroup "Monoid properties of BinTree Bag"
+    [ ("Associativity", propOpIsAssoc)
     , ("Neutral element", propHasNeutral)
     ]
-  , MkGroup "Additional properties of BinTree Bag" [
-      ("Commutativity", propOpIsCommut)
+  , MkGroup "Additional properties of BinTree Bag"
+    [ ("Commutativity", propOpIsCommut)
     ]
   ]
 

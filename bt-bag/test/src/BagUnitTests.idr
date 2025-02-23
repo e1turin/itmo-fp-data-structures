@@ -62,8 +62,8 @@ testFillNonEmpty = unitTest $ do
 export
 bagUnitTests : List Group
 bagUnitTests =
-  [ MkGroup "Unit tests of BinTree Bag" [
-      ("BinTree Bag from list", testBinTreeBagFromList)
+  [ MkGroup "Unit tests of BinTree Bag"
+    [ ("BinTree Bag from list", testBinTreeBagFromList)
     , ("Fill empty tree with put & move", testFillEmpty)
     , ("Fill non empty tree with put & move", testFillNonEmpty)
     ]
