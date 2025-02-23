@@ -12,6 +12,7 @@ data BinTree : (t : Type) -> Type where
 
 %name BinTree t
 
+
 export
 Leaf : t -> BinTree t
 Leaf value = Node value Empty Empty
@@ -24,6 +25,7 @@ export
 Functor BinTree where
   map f Empty = Empty
   map f (Node value left right) = Node (f value) (map f left) (map f right)
+
 
 export
 Foldable BinTree where
@@ -65,12 +67,14 @@ insert x (Node value left right) =
     EQ => Node x left right
     GT => Node value left (insert x right)
 
+
 export
 Ord t => Semigroup (BinTree t) where
   Empty <+> Empty = Empty
   Empty <+> node = node
   node <+> Empty = node
   t1 <+> t2 = foldr insert t1 t2
+
 
 export
 Semigroup (BinTree t) => Monoid (BinTree t) where
@@ -99,6 +103,7 @@ shiftLeft Empty node = node
 shiftLeft node Empty = node
 shiftLeft less (Node v left right) = Node v (shiftLeft less left) right
 
+
 export
 remove : Ord a => a -> BinTree a -> BinTree a
 remove x Empty = Empty
@@ -108,15 +113,17 @@ remove x (Node value left right) =
     EQ => shiftLeft left right
     GT => Node value left (remove x right)
 
+
 export
-filter : Ord t => BinTree t -> (f : t -> Bool) -> BinTree t
-filter Empty f = Empty
-filter node f = foldr take Empty node
+filter : Ord t => (f : t -> Bool) -> BinTree t -> BinTree t
+filter f Empty = Empty
+filter f node = foldr take Empty node
   where
     take : t -> BinTree t -> BinTree t
     take et acc = if f et
                     then insert et acc
                     else acc
+
 
 export
 find : Ord t => t -> BinTree t -> BinTree t
@@ -127,9 +134,11 @@ find v node@(Node value left right) =
     EQ => node
     GT => find v right
 
+
 export
 size : BinTree t -> Nat
 size tree = foldr (\_, acc => 1 + acc) 0 tree
+
 
 export
 binTreeFromList : Ord t => List t -> BinTree t

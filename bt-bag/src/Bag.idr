@@ -30,6 +30,7 @@ export
 Eq t => Eq (Bag t) where
   (MkBag v1 c1) == (MkBag v2 c2) = v1 == v2 && c1 == c2
 
+
 export
 (Ord t) => Ord (Bag t) where
   -- how we can order pairs properly?
@@ -96,6 +97,7 @@ drop x (Node b tl tr) =
             (S k) => Node ({ count := k } b) tl tr
     GT => Node b tl (drop x tr)
 
+
 export
 count : Ord t => t -> BinTree (Bag t) -> Nat
 count v Empty = 0
@@ -104,6 +106,7 @@ count v (Node (MkBag value k) left right) =
     LT => count v left
     EQ => k
     GT => count v right
+
 
 export
 binTreeBagFromList : Ord t => List t -> BinTree (Bag t)

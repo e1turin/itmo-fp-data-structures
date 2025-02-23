@@ -101,6 +101,48 @@ testRemoveNonEmpty = unitTest $ do
   tree3 === binTreeFromList [2, 4]
 
 
+testSize : UnitTest
+testSize = unitTest $ do
+  let tree = Node 3 (Node 2 (Leaf 1) Empty)
+                    (Node 5 (Leaf 4) (Leaf 6))
+  size tree === 6
+
+  let tree' = map (+100) tree -- get tree with new values
+
+  size (tree <+> tree') === 6 * 2
+
+
+testFilter : UnitTest
+testFilter = unitTest $ do
+  let tree = Node 3 (Node 2 (Leaf 1) Empty)
+                    (Node 5 (Leaf 4) (Leaf 6))
+
+  let tree' = filter (< 3) tree
+  tree' === Node 2 (Leaf 1) Empty
+
+  let tree'' = filter (<= 3) tree
+  tree'' === Node 3 (Node 2 (Leaf 1) Empty)
+                     Empty
+
+  let tree''' = filter (>3) tree
+  tree''' === (Node 5 (Leaf 4) (Leaf 6))
+
+  let empty = filter (> 10) tree
+  empty === Empty
+
+  let full = filter (> 0) tree
+  full === tree
+
+
+testFind : UnitTest
+testFind = unitTest $ do
+  let tree = Node 3 (Node 2 (Leaf 1) Empty)
+                    (Node 5 (Leaf 4) (Leaf 6))
+
+  find 1 tree === Leaf 1
+  find 5 tree === Node 5 (Leaf 4) (Leaf 6)
+
+
 export
 binTreeUnitTests : List Group
 binTreeUnitTests =
@@ -112,6 +154,9 @@ binTreeUnitTests =
     , ("Insert to non empty tree", testInsertNonEmpty)
     , ("Remove from empty tree", testRemoveEmpty)
     , ("Remove from non empty tree", testRemoveNonEmpty)
+    , ("Size invariant", testSize)
+    , ("Filter behaviour", testFilter)
+    , ("Find behaviour", testFind)
     ]
   ]
 
