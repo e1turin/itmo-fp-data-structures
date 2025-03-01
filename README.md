@@ -6,9 +6,9 @@
 
 Вариант: `bt-bag`
 
-|                           | Bag(multiset) |
-|---------------------------|---------------|
-| Binary Tree               | `bt-bag`      |
+|             | Bag(multiset) |
+|-------------|---------------|
+| Binary Tree | `bt-bag`      |
 
 ## Требования
 
@@ -30,12 +30,23 @@
 
 ## Комментарии по ходу выполнения
 
-< ... >
+Основные модули:
 
-Пример наивной реализации Tree
-- можно видеть в книге Type Driven Development в листинге "Listing 4.7 Defining binary trees (Tree.idr)"
+- [BinTree.idr](./bt-bag/src/BinTree.idr) — реализация бинарного дерева.
+- [Bag.idr](./bt-bag/src/Bag.idr) — реализация бэга (бинарного дерева «бэгов»)
+
+Тесты:
+
+- [BagUnitTests.idr](bt-bag\test\src\BagUnitTests.idr) -- unit-тесты бэга
+- [BinTreeUnitTests.idr](bt-bag\test\src\BinTreeUnitTests.idr) -- unit-тесты бинарного дерева
+- [PropTests.idr](bt-bag\test\src\PropTests.idr) -- Property-Based-тесты.
+
+В качестве операции полугруппы использовалось объединение деревьев как
+множеств. Аналогично происходит сравнение, через равенство упорядоченного
+списка со всеми элементами.
 
 Примеры реализаций структур на Idris:
+- наивная реализация в книге Type Driven Development в листинге "Listing 4.7 Defining binary trees (Tree.idr)"
 - Idris2 Tree с верификацией: https://github.com/polendri/idris-collections/blob/master/src/Collections/BSTree/Set/Core.idr
 - https://github.com/jfdm/idris-containers
 - https://github.com/buzden/deptycheck/blob/master/examples/sorted-tree-naive/src/Data/SortedBinTree.idr
@@ -49,6 +60,15 @@
 
 ## Тестовое покрытие
 
-- тесты, отчет инструмента тестирования, метрики;
+Библиотека Hedgehog для Property-Based-тестов.
+Она же использовалась и для unit-тестов, где
+нет генератора и одна итерация.
 
 ## Выводы
+
+Разработан модуль представляющий структуру бинарного дерева
+(представляющего множество) и бинарного дерева бэгов
+(в сущности мультимножество).
+
+К модулям разработано тестовое покрытие.
+
